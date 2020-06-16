@@ -1,0 +1,15 @@
+Flask==1.1.1
+Flask-Bootstrap==3.3.7.1
+Flask-Testing==0.7.1
+Flask-WTF==0.14.2
+redis==3.3.11
+rq==1.1.0
+
+numpy==1.16.2
+matplotlib==3.0.3
+z3==0.2.0
+z3-solver==4.8.6.0
+Werkzeug~=1.0.1
+click~=7.1.2
+
+

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="DATABASE" uuid="08ac4a6c-394c-47a4-95e3-845dbd4ccd1a">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\chris\OneDrive\Projects\SimpleSchedulerOnline\db\app</jdbc-url>
+    </data-source>
+  </component>
+</project>

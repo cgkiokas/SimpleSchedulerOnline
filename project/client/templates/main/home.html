@@ -1,0 +1,41 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<div class="starter-template">
+    <h1>Title</h1>
+    <hr><br>
+    <div>
+      <h3>Tasks</h3>
+      <p>Pick a task length...</p>
+        <form enctype="multipart/form-data" method="POST" id="form1" action="">
+            <input name="file" type="file" id="fileval">
+             <div class="btn-group" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" id="upload">Upload</button>
+              </div>
+        </form>
+
+    </div>
+    <br><br>
+    <div>
+      <h3>Task Status</h3>
+      <br>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody id="tasks">
+        </tbody>
+      </table>
+    </div>
+    <div id="plt_src">
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
