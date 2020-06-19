@@ -1,5 +1,7 @@
 # Simple Schedule Online
 
+An online simple schedule generator based on [SimpleSMTScheduler](https://github.com/egk696/SimpleSMTScheduler)
+
 ### Quick Start
 
 Spin up the containers:
