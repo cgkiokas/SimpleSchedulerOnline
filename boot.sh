@@ -1,0 +1,1 @@
+#!/bin/shexec gunicorn -b :5000 - manage:project
