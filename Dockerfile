@@ -8,8 +8,6 @@ WORKDIR /usr/src/app
 # add requirements (to leverage Docker cache)
 ADD ./requirements.txt /usr/src/app/requirements.txt
 
-EXPOSE 8080
-
 # install requirements
 RUN apt-get update && apt-get install -y \
     aufs-tools \
@@ -24,6 +22,9 @@ RUN apt-get update && apt-get install -y \
     locales \
  && rm -rf /var/lib/apt/lists/*
 
+# copy project
+COPY . /usr/src/app
+
 # Set the locale
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
@@ -33,6 +34,12 @@ ENV LC_ALL en_US.UTF-8
 
 RUN pip3 install -r requirements.txt
 
+RUN chmod a+x boot.sh
 
-# copy project
-COPY . /usr/src/app
+ENV FLASK_APP manage.py
+
+
+
+
+
+ENTRYPOINT ["boot.sh"]
