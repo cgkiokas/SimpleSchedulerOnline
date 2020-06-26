@@ -4,7 +4,7 @@ $( document ).ready(() => {
   console.log('Sanity Check!');
 });
 
-$('#upload').on('click', function() {
+$('#schedule').on('click', function() {
     var formData = new FormData();
     formData.append('file', $('#fileval')[0].files[0]);
 
@@ -23,6 +23,42 @@ $('#upload').on('click', function() {
   });
 });
 
+$("#fileval").change(function(e) {
+    var ext = $("input#fileval").val().split(".").pop().toLowerCase();
+    if($.inArray(ext, ["csv"]) == -1) {
+        alert('Upload CSV');
+        return false;
+    }
+    if (e.target.files != undefined) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            $('#tasks').empty();
+            var data = e.target.result
+           // start the body
+            var html = "";
+            // split into lines
+            var rows = data.split("\n");
+            // parse lines
+            for (i = 1; i < rows.length; ++i) {
+                // start a table row
+                html += "<tr>";
+                // split line into columns
+                var columns = rows[i].split(",");
+                columns.forEach(function getvalues(outcol) {
+                    html += "<td>" + outcol + "</td>";
+                })
+                // close row
+                html += "</tr>";
+            }
+            // insert into div
+            $('#tasks').append(html);
+        }
+        reader.readAsText(e.target.files.item(0));
+        return true;
+    }
+    return false;
+});
+
 function getStatus(taskID) {
   $.ajax({
     url: `/tasks/${taskID}`,
@@ -33,23 +69,15 @@ function getStatus(taskID) {
       <tr>
         <td>${res.data.task_id}</td>
         <td>${res.data.task_status}</td>
-        <td>${res.data.task_result}</td>
       </tr>`
-    $('#tasks').empty();
-    $('#tasks').append(html);
+    $('#sessions').empty();
+    $('#sessions').append(html);
     const taskStatus = res.data.task_status;
     if (taskStatus === 'finished')
     {
       var rawResponse = res.img; // truncated for example
-      // convert to Base64
-      var b64Response = btoa(rawResponse);
-      // create an image
-      var outputImg = document.createElement('img');
-      outputImg.src = 'data:image/png;base64,'+rawResponse;
-      outputImg.width = 800;
-      outputImg.height = 600;
       // append it to your page
-      $('#plt_src').append(outputImg);
+      $('#plt_src').append(rawResponse);
 
       // const html = `<img src=${res.img} alt="Plot result" width="500" height="600">`
       // $('#plt_src').empty();
