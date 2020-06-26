@@ -8,21 +8,20 @@ $( document ).ready(() => {
 
 $('#schedule').on('click', function() {
     var formData = new FormData();
-    formData.append('file', $('#fileval')[0].files[0]);
-
-  $.ajax({
-    url: '/tasks',
-    data: formData,
-    method: 'POST',
-    processData: false,  // tell jQuery not to process the data
-    contentType: false,  // tell jQuery not to set contentType
-  })
-  .done((res) => {
-    getStatus(res.data.task_id)
-  })
-  .fail((err) => {
-    console.log(err)
-  });
+    formData.append('tasks_data', $("#tasks_data").val());
+    $.ajax({
+        url: '/tasks',
+        data: formData,
+        method: 'POST',
+        processData: false,  // tell jQuery not to process the data
+        contentType: false,  // tell jQuery not to set contentType
+    })
+        .done((res) => {
+        getStatus(res.data.task_id)
+    })
+        .fail((err) => {
+        console.log(err)
+    });
 });
 
 function SaveAsFile(t,f,m) {
@@ -48,6 +47,7 @@ $("#fileval").change(function(e) {
         reader.onload = function(e) {
             $('#tasks').empty();
             var data = e.target.result
+            $("#tasks_data").val(data);
            // start the body
             var html = "";
             // split into lines
@@ -103,11 +103,8 @@ function getStatus(taskID) {
 
       var rawResponse = res.img; // truncated for example
       // append it to your page
+      $('#plt_src').empty();
       $('#plt_src').append(rawResponse);
-
-      // const html = `<img src=${res.img} alt="Plot result" width="500" height="600">`
-      // $('#plt_src').empty();
-      // $('#plt_src').append(html)
       return false;
     }
     if (taskStatus === 'failed') return false;
