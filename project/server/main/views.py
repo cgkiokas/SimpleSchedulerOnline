@@ -54,15 +54,29 @@ def get_status(task_id):
         task = q.fetch_job(task_id)
 
     if task:
-        response_object = {
-            "status": "success",
-            "data": {
-                "task_id": task.get_id(),
-                "task_status": task.get_status(),
-                "task_result": task.result,
-            },
-            "img": task.return_value,
-        }
+        result = task.return_value
+        if result is None:
+            response_object = {
+                "status": "success",
+                "data": {
+                    "task_id": task.get_id(),
+                    "task_status": task.get_status(),
+                    "task_result": task.result,
+                },
+                "img": task.return_value,
+                "code": task.return_value
+            }
+        else:
+            response_object = {
+                "status": "success",
+                "data": {
+                    "task_id": task.get_id(),
+                    "task_status": task.get_status(),
+                    "task_result": task.result,
+                },
+                "img": result.get("img"),
+                "code": result.get("code")
+            }
     else:
         response_object = {"status": "error"}
 

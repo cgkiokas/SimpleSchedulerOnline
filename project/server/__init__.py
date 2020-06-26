@@ -22,7 +22,7 @@ def create_app(test_config=None):
 
     # set config
     app_settings = os.getenv("APP_SETTINGS")
-    app.config.from_object('project.server.config.DevelopmentConfig')
+    app.config.from_object('project.server.config.DeployConfig')
 
     # set up extensions
     bootstrap.init_app(app)

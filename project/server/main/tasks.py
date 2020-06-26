@@ -18,9 +18,18 @@ def create_task(file):
     if schedule is not None:
         gen_schedule_activations(schedule, taskSet)
     schedulePlot = plot_cyclic_schedule(taskSet, hyperPeriod, schedulePlotPeriods)
+    c_code = gen_schedule_code("", tasksFileName, taskSet, hyperPeriod, utilization, False)
     # Save it to a temporary buffer.
-    buf = BytesIO()
-    schedulePlot.savefig(buf, format="png")
+    imgBuf = BytesIO()
+    schedulePlot.savefig(imgBuf, format="png")
     # Embed the result in the html output.
-    data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    return f"<img class='center-block' src='data:image/png;base64,{data}'/>"
+    imgData = base64.b64encode(imgBuf.getbuffer()).decode("ascii")
+
+    c_code.seek(0)
+    codeString = c_code.read()
+    #codeData = base64.b64encode(codeBuf.getbuffer()).decode("ascii")
+
+    retVal = dict();
+    retVal['img'] = f"<img class='center-block' src='data:image/png;base64,{imgData}'/>"
+    retVal['code'] = codeString
+    return retVal
