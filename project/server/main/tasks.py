@@ -1,9 +1,10 @@
-import os
+# from project.server.scheduling. import get_SMT_sched
+import base64
+from io import BytesIO
 
-#from project.server.scheduling. import get_SMT_sched
-from project.server.scheduling.simplesmtscheduler.schedulers import gen_cyclic_schedule_model, gen_schedule_activations, plot_cyclic_schedule
-from project.server.scheduling.simplesmtscheduler.utilities import parse_csv_taskset
-from flask import current_app
+from project.server.scheduling.simplesmtscheduler.schedulers import *
+from project.server.scheduling.simplesmtscheduler.utilities import *
+
 
 def create_task(file):
     tasksFileName = file
@@ -17,6 +18,9 @@ def create_task(file):
     if schedule is not None:
         gen_schedule_activations(schedule, taskSet)
     schedulePlot = plot_cyclic_schedule(taskSet, hyperPeriod, schedulePlotPeriods)
-    path = os.path.join(os.path.normpath(current_app.root_path), current_app.config['PLOT_FOLDER'], 'plot')
-    schedulePlot.savefig(path, dpi=480)
-    return True
+    # Save it to a temporary buffer.
+    buf = BytesIO()
+    schedulePlot.savefig(buf, format="png")
+    # Embed the result in the html output.
+    data = base64.b64encode(buf.getbuffer()).decode("ascii")
+    return f"<img src='data:image/png;base64,{data}'/>"

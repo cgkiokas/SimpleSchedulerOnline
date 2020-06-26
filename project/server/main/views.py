@@ -1,11 +1,9 @@
 # project/server/main/views.py
-import base64
 import os
 
 import redis
-from rq import Queue, Connection
-
 from flask import render_template, Blueprint, jsonify, request, current_app, flash, redirect
+from rq import Queue, Connection
 from werkzeug.utils import secure_filename
 
 from project.server.main.tasks import create_task
@@ -55,12 +53,6 @@ def get_status(task_id):
         q = Queue()
         task = q.fetch_job(task_id)
 
-    path = os.path.join(os.path.normpath(current_app.root_path), current_app.config['PLOT_FOLDER'], 'plot.png')
-    with open(path, "rb") as image_file:
-        b64_string = base64.b64encode(image_file.read())
-        encoded_string = b64_string.decode('utf-8')
-
-
     if task:
         response_object = {
             "status": "success",
@@ -69,7 +61,7 @@ def get_status(task_id):
                 "task_status": task.get_status(),
                 "task_result": task.result,
             },
-            "img":encoded_string,
+            "img": task.return_value,
         }
     else:
         response_object = {"status": "error"}
