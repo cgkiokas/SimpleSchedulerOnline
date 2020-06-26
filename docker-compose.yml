@@ -19,7 +19,7 @@ services:
 
   worker:
     image: web
-    command: python3 manage.py run_worker
+#    command: python3 manage.py run_worker
     volumes:
       - .:/user/src/app
     environment:

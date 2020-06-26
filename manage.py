@@ -33,3 +33,4 @@ def run_worker():
 
 if __name__ == "__main__":
     cli()
+    run_worker()
