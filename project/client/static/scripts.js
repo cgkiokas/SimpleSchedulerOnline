@@ -1,5 +1,7 @@
 // custom javascript
 
+let codeResponse;
+
 $( document ).ready(() => {
   console.log('Sanity Check!');
 });
@@ -22,6 +24,18 @@ $('#schedule').on('click', function() {
     console.log(err)
   });
 });
+
+function SaveAsFile(t,f,m) {
+    try {
+        var b = new Blob([t],{type:m});
+        saveAs(b, f);
+        window.close();
+    } catch (e) {
+        window.open("data:"+m+"," + encodeURIComponent(t), '_blank','');
+    }
+}
+
+
 
 $("#fileval").change(function(e) {
     var ext = $("input#fileval").val().split(".").pop().toLowerCase();
@@ -75,6 +89,18 @@ function getStatus(taskID) {
     const taskStatus = res.data.task_status;
     if (taskStatus === 'finished')
     {
+
+    if (res.code) {
+        codeResponse = res.code
+        var button = document.createElement('button');
+        button.className = 'btn btn-primary';
+        button.innerHTML = 'Download C Header';
+        button.onclick = function(){
+            SaveAsFile(codeResponse,"sched.h","text/plain;charset=utf-8");
+        };
+         $('#downloadBtn').append(button);
+    }
+
       var rawResponse = res.img; // truncated for example
       // append it to your page
       $('#plt_src').append(rawResponse);
@@ -93,3 +119,4 @@ function getStatus(taskID) {
     console.log(err);
   });
 }
+
