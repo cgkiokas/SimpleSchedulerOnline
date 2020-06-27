@@ -8,8 +8,6 @@ WORKDIR /usr/src/app
 # add requirements (to leverage Docker cache)
 ADD ./requirements.txt /usr/src/app/requirements.txt
 
-EXPOSE 8080
-
 # install requirements
 RUN apt-get update && apt-get install -y \
     aufs-tools \
@@ -25,6 +23,9 @@ RUN apt-get update && apt-get install -y \
     git \
  && rm -rf /var/lib/apt/lists/*
 
+# copy project
+COPY . /usr/src/app
+
 # Set the locale
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
@@ -37,5 +38,6 @@ RUN pip3 install -r requirements.txt
 # pull other project
 RUN git clone https://github.com/egk696/SimpleSMTScheduler.git /usr/src/SimpleSMTScheduler
 
-# copy project
-COPY . /usr/src/app
+ENV FLASK_APP manage.py
+
+CMD ["gunicorn", "manage:app"]
