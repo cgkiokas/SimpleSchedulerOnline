@@ -41,3 +41,5 @@ RUN git clone https://github.com/egk696/SimpleSMTScheduler.git /usr/src/SimpleSM
 ENV FLASK_APP manage.py
 
 CMD ["gunicorn", "manage:app"]
+#comment above cmd and uncomment below to deply worker to heroku
+#CMD ["python3","/usr/src/app/manage.py","run_worker"]
