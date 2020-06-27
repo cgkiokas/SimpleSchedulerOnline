@@ -63,7 +63,7 @@ $("#fileval").change(function(e) {
                 // split line into columns
                 var columns = rows[i].split(",");
                 columns.forEach(function getvalues(outcol) {
-                    html += "<td>" + outcol + "</td>";
+                    html += "<td contenteditable='true'>" + outcol + "</td>";
                 })
                 // close row
                 html += "</tr>";
