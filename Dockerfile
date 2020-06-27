@@ -38,6 +38,3 @@ RUN pip3 install -r requirements.txt
 ENV FLASK_APP manage.py
 
 CMD ["gunicorn", "manage:app"]
-#only for heroku:
-#CMD ["gunicorn"  , "-b", "0.0.0.0:8000", "app:manage"]
-#ENTRYPOINT ["./boot.sh"]

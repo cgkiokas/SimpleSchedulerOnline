@@ -9,6 +9,10 @@ $( document ).ready(() => {
 $('#schedule').on('click', function() {
     var formData = new FormData();
     formData.append('tasks_data', $("#tasks_data").val());
+    //Remove old plots and code
+    $('#downloadBtn').empty();
+    $('#plt_src').empty();
+
     $.ajax({
         url: '/tasks',
         data: formData,
@@ -103,7 +107,7 @@ function getStatus(taskID) {
 
       var rawResponse = res.img; // truncated for example
       // append it to your page
-      $('#plt_src').empty();
+
       $('#plt_src').append(rawResponse);
       return false;
     }

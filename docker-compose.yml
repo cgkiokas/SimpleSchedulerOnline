@@ -13,7 +13,7 @@ services:
       - .:/usr/src/app
     environment:
       - FLASK_DEBUG=1
-      - APP_SETTINGS=project.server.config.DeployConfig
+      - APP_SETTINGS=project.server.config.DevelopmentConfig
     depends_on:
       - redis
 
@@ -23,7 +23,7 @@ services:
     volumes:
       - .:/user/src/app
     environment:
-      - APP_SETTINGS=project.server.config.DeployConfig
+      - APP_SETTINGS=project.server.config.DevelopmentConfig
     depends_on:
       - redis
 

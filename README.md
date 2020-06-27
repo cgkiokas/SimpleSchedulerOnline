@@ -1,9 +1,8 @@
 # Simple Schedule Online
 
 An online simple schedule generator based on [SimpleSMTScheduler](https://github.com/egk696/SimpleSMTScheduler)
-
-### Quick Start
-
+To use the application online: [Simple Cyclic Scheduler Online](https://simplescheduleronline.herokuapp.com/)  
+### Quick Start for local dev:
 Spin up the containers:
 
 ```sh
