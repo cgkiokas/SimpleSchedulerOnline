@@ -1,9 +1,11 @@
 # from project.server.scheduling. import get_SMT_sched
 import base64
-from io import BytesIO
+import sys
 
-from project.server.scheduling.simplesmtscheduler.schedulers import *
-from project.server.scheduling.simplesmtscheduler.utilities import *
+sys.path.insert(0, '../SimpleSMTScheduler')
+from simplesmtscheduler.schedulers import *
+
+from io import BytesIO
 
 
 def create_task(file):

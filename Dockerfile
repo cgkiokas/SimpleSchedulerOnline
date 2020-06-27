@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     python3.8 \
     python3-pip \
     locales \
+    git \
  && rm -rf /var/lib/apt/lists/*
 
 # Set the locale
@@ -33,6 +34,8 @@ ENV LC_ALL en_US.UTF-8
 
 RUN pip3 install -r requirements.txt
 
+# pull other project
+RUN git clone https://github.com/egk696/SimpleSMTScheduler.git /usr/src/SimpleSMTScheduler
 
 # copy project
 COPY . /usr/src/app

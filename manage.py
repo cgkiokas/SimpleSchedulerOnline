@@ -1,4 +1,7 @@
 # manage.py
+import sys
+
+sys.path.insert(0, '../SimpleSMTScheduler')
 import redis
 from rq import Connection, Worker
 

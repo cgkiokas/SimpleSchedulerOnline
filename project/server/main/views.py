@@ -56,7 +56,7 @@ def get_status(task_id):
             "data": {
                 "task_id": task.get_id(),
                 "task_status": task.get_status(),
-                "task_result": task.result,
+                "task_result": True,
             },
             "img": task.return_value,
         }
