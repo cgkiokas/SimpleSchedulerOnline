@@ -1,12 +1,100 @@
 // custom javascript
+// A few jQuery helpers for exporting only
+jQuery.fn.pop = [].pop;
+jQuery.fn.shift = [].shift;
 
-let codeResponse;
+let codeResponse = "";
+let utilization = 0;
+
+const newTaskTemplate = "<tr class='hide'><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>None</td><td contenteditable='true'>0</td><td contenteditable='true'>Tn</td><td contenteditable='true'>&task_n</td><td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
+
+function SaveAsFile(t,f,m) {
+    try {
+        var b = new Blob([t],{type:m});
+        saveAs(b, f);
+        window.close();
+    } catch (e) {
+        window.open("data:"+m+"," + encodeURIComponent(t), '_blank','');
+    }
+}
+
+function GetTableAsString(){
+    const $rows = $('#task_table').find('tr:not(:hidden)');
+    let csvContent = ""
+    // Turn all existing rows into a loopable array
+    $rows.each(function () {
+        const $th = $(this).find('th:not(:empty)');
+        for(i=0; i<$th.length-1; i++){
+            csvContent += $th[i].innerText;
+            if(i < $th.length-2){
+                csvContent += ",";
+            }
+        };
+        const $td = $(this).find('td');
+        for(i=0; i<$td.length-1; i++){
+            csvContent += $td[i].innerText.replace(/[^a-z0-9]/gi,'');
+            if(i < $td.length-2){
+                csvContent += ",";
+            }
+        };
+        csvContent += "\r\n";
+    });
+    console.log(csvContent);
+    return csvContent;
+}
+
+function getStatus(taskID) {
+  $.ajax({
+    url: `/tasks/${taskID}`,
+    method: 'GET'
+  })
+  .done((res) => {
+    const html = `
+      <tr>
+        <td>${res.data.task_id}</td>
+        <td>${res.data.task_status}</td>
+        <td>${res.data.task_elapsed}</td>
+      </tr>`
+    $('#sessions').empty();
+    $('#sessions').append(html);
+    const taskStatus = res.data.task_status;
+    if (taskStatus === 'finished')
+    {
+      utilization = res.util
+      $('#sched_util').text("(" + utilization.toFixed(2) + " % utilization)");
+      if (res.code) {
+          codeResponse = res.code;
+          var button = document.createElement('button');
+          button.className = 'btn btn-primary';
+          button.innerHTML = 'Download C Header';
+          button.onclick = function(){
+              SaveAsFile(codeResponse,"sched.h","text/plain;charset=utf-8");
+          };
+           $('#downloadBtn').append(button);
+      }
+
+      var rawResponse = res.img; // truncated for example
+      // append it to your page
+
+      $('#plt_src').append(rawResponse);
+      return false;
+    }
+    if (taskStatus === 'failed') return false;
+    setTimeout(function() {
+      getStatus(res.data.task_id);
+    }, 1000);
+  })
+  .fail((err) => {
+    console.log(err);
+  });
+}
 
 $( document ).ready(() => {
   console.log('Sanity Check!');
 });
 
 $('#schedule').on('click', function() {
+    $("#tasks_data").val(GetTableAsString());
     var formData = new FormData();
     formData.append('tasks_data', $("#tasks_data").val());
     //Remove old plots and code
@@ -27,18 +115,6 @@ $('#schedule').on('click', function() {
         console.log(err)
     });
 });
-
-function SaveAsFile(t,f,m) {
-    try {
-        var b = new Blob([t],{type:m});
-        saveAs(b, f);
-        window.close();
-    } catch (e) {
-        window.open("data:"+m+"," + encodeURIComponent(t), '_blank','');
-    }
-}
-
-
 
 $("#fileval").change(function(e) {
     var ext = $("input#fileval").val().split(".").pop().toLowerCase();
@@ -65,6 +141,7 @@ $("#fileval").change(function(e) {
                 columns.forEach(function getvalues(outcol) {
                     html += "<td contenteditable='true'>" + outcol + "</td>";
                 })
+                html += "<td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
                 // close row
                 html += "</tr>";
             }
@@ -77,47 +154,12 @@ $("#fileval").change(function(e) {
     return false;
 });
 
-function getStatus(taskID) {
-  $.ajax({
-    url: `/tasks/${taskID}`,
-    method: 'GET'
-  })
-  .done((res) => {
-    const html = `
-      <tr>
-        <td>${res.data.task_id}</td>
-        <td>${res.data.task_status}</td>
-      </tr>`
-    $('#sessions').empty();
-    $('#sessions').append(html);
-    const taskStatus = res.data.task_status;
-    if (taskStatus === 'finished')
-    {
+$('.table-add').on('click', 'i', () => {
+    $('#tasks').append(newTaskTemplate);
+});
 
-    if (res.code) {
-        codeResponse = res.code
-        var button = document.createElement('button');
-        button.className = 'btn btn-primary';
-        button.innerHTML = 'Download C Header';
-        button.onclick = function(){
-            SaveAsFile(codeResponse,"sched.h","text/plain;charset=utf-8");
-        };
-         $('#downloadBtn').append(button);
-    }
+$('#task_table').on('click', '.table-remove', function () {
+    $(this).parents('tr').detach();
+});
 
-      var rawResponse = res.img; // truncated for example
-      // append it to your page
-
-      $('#plt_src').append(rawResponse);
-      return false;
-    }
-    if (taskStatus === 'failed') return false;
-    setTimeout(function() {
-      getStatus(res.data.task_id);
-    }, 1000);
-  })
-  .fail((err) => {
-    console.log(err);
-  });
-}
-
+// TODO: add export button for tasks table to CSV

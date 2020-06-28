@@ -29,9 +29,10 @@ def create_task(file):
 
     c_code.seek(0)
     codeString = c_code.read()
-    #codeData = base64.b64encode(codeBuf.getbuffer()).decode("ascii")
 
-    retVal = dict();
+    retVal = dict()
     retVal['img'] = f"<img class='center-block' src='data:image/png;base64,{imgData}'/>"
     retVal['code'] = codeString
+    retVal['util'] = utilization
+    retVal['elapsed'] = (elapsedTime * SEC_TO_MS)
     return retVal

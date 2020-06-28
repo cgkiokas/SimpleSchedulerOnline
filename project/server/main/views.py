@@ -58,7 +58,6 @@ def get_status(task_id):
                 "data": {
                     "task_id": task.get_id(),
                     "task_status": task.get_status(),
-                    "task_result": task.result,
                 },
                 "img": task.return_value,
                 "code": task.return_value
@@ -69,12 +68,14 @@ def get_status(task_id):
                 "data": {
                     "task_id": task.get_id(),
                     "task_status": task.get_status(),
-                    "task_result": task.result,
+                    "task_elapsed": result.get("elapsed"),
                 },
                 "img": result.get("img"),
-                "code": result.get("code")
+                "code": result.get("code"),
+                "util": result.get("util")
             }
     else:
+        # TODO: I think we should rework this and actually handle errors gracefully
         response_object = {"status": "error"}
 
     return jsonify(response_object)
