@@ -5,8 +5,31 @@ jQuery.fn.shift = [].shift;
 
 let codeResponse = "";
 let utilization = 0;
+let editable = document.querySelectorAll('[contenteditable=true]')
 
 const newTaskTemplate = "<tr class='hide'><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>None</td><td contenteditable='true'>0</td><td contenteditable='true'>Tn</td><td contenteditable='true'>&task_n</td><td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
+
+$( document ).ready(() => {
+  console.log('Sanity Check!');
+
+});
+
+
+function init_util()
+{
+    updateEditablesList();
+    calc_util();;
+}
+
+function updateEditablesList()
+{
+    editable = document.querySelectorAll('[contenteditable=true]');
+    editable.forEach(function (itm) {
+            itm.addEventListener('blur', (event) => {
+                          calc_util();
+                        }, true);
+        });
+}
 
 function SaveAsFile(t,f,m) {
     try {
@@ -21,7 +44,7 @@ function SaveAsFile(t,f,m) {
 function GetTableAsString(){
     const $rows = $('#task_table').find('tr:not(:hidden)');
     let csvContent = ""
-    // Turn all existing rows into a loopable array
+    // Turn all existing rows into a loopable array$("#tasks_data").val(GetTableAsString());
     $rows.each(function () {
         const $th = $(this).find('th:not(:empty)');
         for(i=0; i<$th.length-1; i++){
@@ -89,9 +112,6 @@ function getStatus(taskID) {
   });
 }
 
-$( document ).ready(() => {
-  console.log('Sanity Check!');
-});
 
 $('#schedule').on('click', function() {
     $("#tasks_data").val(GetTableAsString());
@@ -144,11 +164,15 @@ $("#fileval").change(function(e) {
                 html += "<td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
                 // close row
                 html += "</tr>";
+
             }
             // insert into div
             $('#tasks').append(html);
+            init_util();
         }
         reader.readAsText(e.target.files.item(0));
+
+
         return true;
     }
     return false;
@@ -156,10 +180,41 @@ $("#fileval").change(function(e) {
 
 $('.table-add').on('click', 'i', () => {
     $('#tasks').append(newTaskTemplate);
+    init_util();
 });
 
 $('#task_table').on('click', '.table-remove', function () {
     $(this).parents('tr').detach();
+    init_util();
+
 });
 
+
+function calc_util()
+{
+    var sum = 0;
+    const $rows = $('#task_table').find('tr:not(:hidden)');
+      $rows.each(function () {
+          const $td = $(this).find('td');
+          if((typeof ($td[0] && $td[1]) !== "undefined") && $td.length > 0)
+            {
+
+                  if ($td[0] === 0)
+                      {
+                          sum = 0;
+                      }
+                  else
+                      {
+                          sum += (parseInt($td[1].textContent)/parseInt($td[0].textContent));
+                      }
+            }
+          else
+              {
+                  sum = 0;
+              }
+
+        });
+  console.log(sum);
+  $('#utilVal').text((sum*100)+"%");
+}
 // TODO: add export button for tasks table to CSV

@@ -16,6 +16,11 @@ def home():
     return render_template("main/home.html")
 
 
+@main_blueprint.route("/info")
+def info():
+    return render_template("main/info.html")
+
+
 @main_blueprint.route("/tasks", methods=["POST"])
 def run_task():
     tasks_data = request.form.get('tasks_data')
