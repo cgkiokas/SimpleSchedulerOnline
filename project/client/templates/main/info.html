@@ -13,43 +13,40 @@
         </div>
         <div class="card-body">
             <div>
-                <p> The app can be used in two ways. Firstly by using the table input as shown below to enter the desired tasks specification.
-                    In addition the table can be created as a .csv and be uploaded for processing. The .csv format must mimic the input table and start with the field headers from cell 1A. </p>
+                <p>
+                    The app can be used in two ways to generate a cyclic executive schedule for a set of real-time
+                    tasks.
+                    Firstly, by using the table input as shown below to enter the desired tasks specification.
+                    Secondly, by uploading a CSV formatted text file. The CSV format must mimic
+                    the input table and start with the field headers from cell 1A.
+                </p>
                 <h6>Fields:</h6>
                 <ul>
-                    <li>Period:</li>
-                    <li>Execution:</li>
-                    <li>Deadline:</li>
-                    <li>Offset:</li>
-                    <li>Allowed Jitter:</li>
-                    <li>Fixed Start:</li>
-                    <li>CPU ID:</li>
-                    <li>Name:</li>
-                    <li>Function:</li>
-                    <li>Remove:</li>
+                    <li><strong>Period:</strong> Defines the period task.</li>
+                    <li><strong>Execution:</strong> Defines the worst-case execution time of the task.</li>
+                    <li><strong>Deadline:</strong> Defines a relative deadline with respect to the period of the task.
+                        This field can be used to force the scheduler to schedule a task before a
+                        specific point in time.
+                    </li>
+                    <li><strong>Offset:</strong> Defines a relative offset with respect to the period of the task.
+                        This field can be also used to force the scheduler to schedule the activation
+                        instance of a task after a specific point in time.
+                    </li>
+                    <li><strong>Allowed Jitter:</strong> Defines the maximum allowed jitter that a task can experience,
+                        i.e. the tolerated amount of time that a task is allowed to be scheduled
+                        after its period or deadline.
+                    </li>
+                    <li><strong>CPU ID:</strong> Defines the CPU ID that the task belongs to. This field can be used
+                        allow the scheduler to overlap the execution of two tasks under the assumption that they are
+                        executed
+                        by different processors.
+                    </li>
+                    <li><strong>Name:</strong> Sets the name of the task both in the generated plot and the generate
+                        code.
+                    </li>
+                    <li><strong>Function:</strong> Sets the callable name of the C function of the respective task.</li>
                 </ul>
             </div>
-
-            <span class="table-add float-right mb-3 mr-2"><a class="text-success" href="#!"><i
-                    aria-hidden="true" class="fa fa-plus fa-2x"></i></a></span>
-            <table class="table table-striped table-editable" id="task_table">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Period</th>
-                    <th scope="col">Execution</th>
-                    <th scope="col">Deadline</th>
-                    <th scope="col">Offset</th>
-                    <th scope="col">Allowed Jitter</th>
-                    <th scope="col">Fixed Start</th>
-                    <th scope="col">CPU ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Function</th>
-                    <th scope="col">Remove</th>
-                </tr>
-                </thead>
-                <tbody id="tasks">
-                </tbody>
-            </table>
         </div>
     </div>
     <div class="card">

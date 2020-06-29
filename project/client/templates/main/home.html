@@ -13,14 +13,20 @@
                 <input id="fileval" name="filename" type="file">
                 <input id="tasks_data" name="tasks_data" type="hidden" value="">
                 <div aria-label="Basic example" class="btn-group float-right" role="group">
-                    <button class="btn btn-primary" id="schedule" type="button">Generate Schedule</button>
+                    <button class="btn btn-primary" id="exportCsv" type="button"><i class="fa fa-calendar"></i> Export
+                        CSV
+                    </button>
+                    <button class="btn btn-primary ml-2" id="schedule" type="button"><i class="fa fa-tasks"></i>
+                        Generate Schedule
+                    </button>
                 </div>
             </form>
         </div>
         <div class="card-body">
-            <span class="table-add float-right mb-3 mr-2"><a class="text-success" href="#!"><i
-                    aria-hidden="true" class="fa fa-plus fa-2x"></i></a></span>
-            <table class="table table-striped table-editable" id="task_table">
+            <span class="table-add float-right mb-3" id="addNewTask">
+               <button class="btn btn-success" type="button"><i class="fa fa-plus"></i> Add New Task</button>
+            </span>
+            <table class="table table-bordered table-responsive-md table-striped table-editable" id="task_table">
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col">Period</th>
@@ -28,18 +34,19 @@
                     <th scope="col">Deadline</th>
                     <th scope="col">Offset</th>
                     <th scope="col">Allowed Jitter</th>
-                    <th scope="col">Fixed Start</th>
                     <th scope="col">CPU ID</th>
                     <th scope="col">Name</th>
                     <th scope="col">Function</th>
-                    <th scope="col">Remove</th>
+                    <th scope="col">Action</th>
                 </tr>
                 </thead>
                 <tbody id="tasks">
                 </tbody>
-
             </table>
-             <h5 id="util">Utilization:</h5> <h5 id="utilVal"></h5>
+            <div class="float-left">
+                <h6 class="float-left mr-2" id="util">Utilization:</h6>
+                <h6 class="float-right" id="utilVal"></h6>
+            </div>
         </div>
     </div>
     <div class="card">
@@ -60,7 +67,6 @@
     </div>
     <div class="card">
         <h3 class="card-header">Schedule
-            <span id="sched_util"></span>
             <div class="float-right" id="downloadBtn"></div>
         </h3>
         <div class="card-body text-center" id="plt_src">

@@ -7,7 +7,7 @@ let codeResponse = "";
 let utilization = 0;
 let editable = document.querySelectorAll('[contenteditable=true]')
 
-const newTaskTemplate = "<tr class='hide'><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>None</td><td contenteditable='true'>0</td><td contenteditable='true'>Tn</td><td contenteditable='true'>&task_n</td><td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
+const newTaskTemplate = "<tr class='hide'><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>Tn</td><td contenteditable='true'>&task_n</td><td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
 
 $( document ).ready(() => {
   console.log('Sanity Check!');
@@ -55,7 +55,7 @@ function GetTableAsString(){
         };
         const $td = $(this).find('td');
         for(i=0; i<$td.length-1; i++){
-            csvContent += $td[i].innerText.replace(/[^a-z0-9]/gi,'');
+            csvContent += $td[i].innerText.trim();
             if(i < $td.length-2){
                 csvContent += ",";
             }
@@ -83,8 +83,6 @@ function getStatus(taskID) {
     const taskStatus = res.data.task_status;
     if (taskStatus === 'finished')
     {
-      utilization = res.util
-      $('#sched_util').text("(" + utilization.toFixed(2) + " % utilization)");
       if (res.code) {
           codeResponse = res.code;
           var button = document.createElement('button');
@@ -161,7 +159,7 @@ $("#fileval").change(function(e) {
                 columns.forEach(function getvalues(outcol) {
                     html += "<td contenteditable='true'>" + outcol + "</td>";
                 })
-                html += "<td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
+                html += "<td class='text-center'><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'><i aria-hidden='true' class='fa fa-trash-o'/></button></span></td>"
                 // close row
                 html += "</tr>";
 
@@ -178,7 +176,7 @@ $("#fileval").change(function(e) {
     return false;
 });
 
-$('.table-add').on('click', 'i', () => {
+$('#addNewTask').on('click', () => {
     $('#tasks').append(newTaskTemplate);
     init_util();
 });
@@ -186,9 +184,11 @@ $('.table-add').on('click', 'i', () => {
 $('#task_table').on('click', '.table-remove', function () {
     $(this).parents('tr').detach();
     init_util();
-
 });
 
+$("#exportCsv").on('click', function (){
+  SaveAsFile(GetTableAsString(),"task_set.csv","text/plain;charset=utf-8");
+});
 
 function calc_util()
 {
