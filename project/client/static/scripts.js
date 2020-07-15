@@ -7,11 +7,28 @@ let codeResponse = "";
 let utilization = 0;
 let editable = document.querySelectorAll('[contenteditable=true]')
 
-const newTaskTemplate = "<tr class='hide'><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>0</td><td contenteditable='true'>Tn</td><td contenteditable='true'>&task_n</td><td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
+const newTaskTemplate = "<tr class='hide'><td contenteditable='true' inputmode=decimal>0</td>" +
+                                        "<td contenteditable='true' inputmode=decimal>0</td>" +
+                                        "<td contenteditable='true' inputmode=decimal>0</td>" +
+                                        "<td contenteditable='true' inputmode=decimal>0</td>" +
+                                        "<td contenteditable='true' inputmode=decimal>0</td>" +
+                                        "<td contenteditable='true'>0</td>" +
+                                        "<td contenteditable='true'>Tn</td>" +
+                                        "<td contenteditable='true'>&task_n</td>" +
+                                        "<td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
 
 $( document ).ready(() => {
   console.log('Sanity Check!');
-
+    if($(window).width() < 770)
+    {
+        // mobile
+        $("#top-buttons").addClass("btn-group-vertical");
+        $("#fileval").addClass("mobile");
+        $("#form1").addClass("mobile");
+    } else {
+        // desktop
+        $("#top-buttons").addClass("btn-group float-right");
+    }
 });
 
 
@@ -98,6 +115,7 @@ function getStatus(taskID) {
       // append it to your page
 
       $('#plt_src').append(rawResponse);
+      document.getElementById('plt_src').scrollIntoView();
       return false;
     }
     if (taskStatus === 'failed') return false;
@@ -112,6 +130,11 @@ function getStatus(taskID) {
 
 
 $('#schedule').on('click', function() {
+    if(utilization > 100)
+    {
+        alert('Utilization over 100%');
+        return false;
+    }
     $("#tasks_data").val(GetTableAsString());
     var formData = new FormData();
     formData.append('tasks_data', $("#tasks_data").val());
@@ -140,6 +163,7 @@ $("#fileval").change(function(e) {
         alert('Upload CSV');
         return false;
     }
+
     if (e.target.files != undefined) {
         var reader = new FileReader();
         reader.onload = function(e) {
@@ -156,10 +180,18 @@ $("#fileval").change(function(e) {
                 html += "<tr>";
                 // split line into columns
                 var columns = rows[i].split(",");
+                var columnsize = columns.length;
                 columns.forEach(function getvalues(outcol) {
-                    html += "<td contenteditable='true'>" + outcol + "</td>";
+                    if (columnsize >= 5)
+                    {
+                        html += "<td contenteditable='true' inputmode=decimal>" + outcol + "</td>";
+                    }else
+                    {
+                        html += "<td contenteditable='true' >" + outcol + "</td>";
+                    }
+                    columnsize--;
                 })
-                html += "<td class='text-center'><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'><i aria-hidden='true' class='fa fa-trash-o'/></button></span></td>"
+                html += "<td class='text-center'><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0 btn-responsive'><i aria-hidden='true' class='fa fa-trash-o'/></button></span></td>"
                 // close row
                 html += "</tr>";
 
@@ -215,6 +247,7 @@ function calc_util()
 
         });
   console.log(sum);
-  $('#utilVal').text((sum*100)+"%");
+  utilization = sum*100;
+  $('#utilVal').text(utilization+"%");
 }
 // TODO: add export button for tasks table to CSV
