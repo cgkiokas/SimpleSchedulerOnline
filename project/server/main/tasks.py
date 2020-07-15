@@ -31,7 +31,8 @@ def create_task(file):
     codeString = c_code.read()
 
     retVal = dict()
-    retVal['img'] = f"<img class='center-block' alt='generated schedule plot' src='data:image/png;base64,{imgData}'/>"
+    retVal[
+        'img'] = f"<img class='center-block responsive-img' alt='generated schedule plot' src='data:image/png;base64,{imgData}'/>"
     retVal['code'] = codeString
     retVal['util'] = utilization
     retVal['elapsed'] = (elapsedTime * SEC_TO_MS)

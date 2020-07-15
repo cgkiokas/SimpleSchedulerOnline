@@ -27,3 +27,7 @@ input[type=submit] { align-self: start; min-width: 10em; }
 img {background-size: contain;width: 100%; height: auto;}
 .mobile #fileval {padding-bottom: 5px;}
 .mobile #form1 {text-align: center;}
+.responsive-img {
+    max-width: 100%;
+    height: auto;
+}

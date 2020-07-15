@@ -25,6 +25,8 @@ $( document ).ready(() => {
         $("#top-buttons").addClass("btn-group-vertical");
         $("#fileval").addClass("mobile");
         $("#form1").addClass("mobile");
+        $("#exportCsv").addClass("mt-1")
+        $("#schedule").addClass("mt-1")
     } else {
         // desktop
         $("#top-buttons").addClass("btn-group float-right");
