@@ -13,6 +13,7 @@ const newTaskTemplate = "<tr class='hide'><td contenteditable='true' inputmode=d
                                         "<td contenteditable='true' inputmode=decimal>0</td>" +
                                         "<td contenteditable='true' inputmode=decimal>0</td>" +
                                         "<td contenteditable='true'>0</td>" +
+                                        "<td contenteditable='true'>None</td>" +
                                         "<td contenteditable='true'>Tn</td>" +
                                         "<td contenteditable='true'>&task_n</td>" +
                                         "<td><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0'>Remove</button></span></td>"
