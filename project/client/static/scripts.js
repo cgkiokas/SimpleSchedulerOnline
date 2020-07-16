@@ -118,6 +118,8 @@ function getStatus(taskID) {
       // append it to your page
 
       $('#plt_src').append(rawResponse);
+      $('#plt_src > svg').addClass('responsive-img')
+      $('#plt_src > svg').attr('width', "100%")
       document.getElementById('plt_src').scrollIntoView();
       return false;
     }

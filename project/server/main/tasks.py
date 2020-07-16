@@ -1,11 +1,10 @@
 # from project.server.scheduling. import get_SMT_sched
-import base64
 import sys
 
 sys.path.insert(0, '../SimpleSMTScheduler')
 from simplesmtscheduler.schedulers import *
 
-from io import BytesIO
+from io import StringIO
 
 
 def create_task(file):
@@ -22,17 +21,21 @@ def create_task(file):
     schedulePlot = plot_cyclic_schedule(taskSet, hyperPeriod, schedulePlotPeriods)
     c_code = gen_schedule_code("", tasksFileName, taskSet, hyperPeriod, utilization, False)
     # Save it to a temporary buffer.
-    imgBuf = BytesIO()
-    schedulePlot.savefig(imgBuf, format="png")
+    # imgBuf = BytesIO()
+    # schedulePlot.savefig(imgBuf, format="png")
+    imgBuf = StringIO()
+    schedulePlot.savefig(imgBuf, format="svg")
     # Embed the result in the html output.
-    imgData = base64.b64encode(imgBuf.getbuffer()).decode("ascii")
+    # imgData = base64.b64encode(imgBuf.getbuffer()).decode("ascii")
+    imgData = imgBuf.getvalue()
 
     c_code.seek(0)
     codeString = c_code.read()
 
     retVal = dict()
-    retVal[
-        'img'] = f"<img class='center-block responsive-img' alt='generated schedule plot' src='data:image/png;base64,{imgData}'/>"
+    # retVal[
+    #     'img'] = f"<img class='center-block responsive-img' alt='generated schedule plot' src='data:image/png;base64,{imgData}'/>"
+    retVal['img'] = f"{imgData}"
     retVal['code'] = codeString
     retVal['util'] = utilization
     retVal['elapsed'] = (elapsedTime * SEC_TO_MS)
