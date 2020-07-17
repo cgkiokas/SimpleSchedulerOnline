@@ -7,7 +7,7 @@ from simplesmtscheduler.schedulers import *
 from io import StringIO
 
 
-def create_task(file):
+def create_task(file, optimize=False, simAnnealing=False):
     tasksFileName = file
     taskSet = []
     wcet_offset = 0
@@ -15,7 +15,7 @@ def create_task(file):
     schedulePlotPeriods = 1
 
     parse_csv_taskset(tasksFileName, taskSet)
-    schedule, utilization, hyperPeriod, elapsedTime = gen_cyclic_schedule_model(taskSet, wcet_offset, verbose)
+    schedule, utilization, hyperPeriod, elapsedTime = gen_cyclic_schedule_model(taskSet, wcet_offset, optimize, verbose)
     if schedule is not None:
         gen_schedule_activations(schedule, taskSet)
     schedulePlot = plot_cyclic_schedule(taskSet, hyperPeriod, schedulePlotPeriods)

@@ -143,6 +143,7 @@ $('#schedule').on('click', function() {
     $("#tasks_data").val(GetTableAsString());
     var formData = new FormData();
     formData.append('tasks_data', $("#tasks_data").val());
+    formData.append('optimize', $("#optimizeCheck").val());
     //Remove old plots and code
     $('#downloadBtn').empty();
     $('#plt_src').empty();

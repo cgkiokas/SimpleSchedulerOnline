@@ -24,6 +24,7 @@ def info():
 @main_blueprint.route("/tasks", methods=["POST"])
 def run_task():
     tasks_data = request.form.get('tasks_data')
+    optimize = request.form.get('optimize')
     print(tasks_data)
     file = io.StringIO(tasks_data)
     csv.writer(file)
@@ -38,7 +39,7 @@ def run_task():
 
     with Connection(redis.from_url(current_app.config["REDIS_URL"])):
         q = Queue()
-        task = q.enqueue(create_task, file)
+        task = q.enqueue(create_task, file, optimize)
 
     response_object = {
         "status": "success",
