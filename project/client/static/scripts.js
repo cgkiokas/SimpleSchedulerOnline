@@ -8,12 +8,12 @@ let utilization = 0;
 let hyperperiod = 0;
 let editable = document.querySelectorAll('[contenteditable=true]')
 
-function lcm(periods) {
-    lcm = periods[0]
+function calc_lcm(periods) {
+    let lcm_val = Math.round(periods[0]);
     periods.slice(1, periods.length).forEach(function (itm) {
-        lcm = Math.round(lcm * itm / math.gcd(lcm, itm))
-    })
-    return lcm
+        lcm_val = Math.round(lcm_val * itm / math.gcd(lcm_val, itm))
+    });
+    return lcm_val;
 }
 
 const newTaskTemplate = "<tr class='hide'><td contenteditable='true' inputmode=decimal>0</td>" +
@@ -99,42 +99,48 @@ function getStatus(taskID) {
     $.ajax({
         url: `/tasks/${taskID}`,
         method: 'GET'
-    })
-        .done((res) => {
-            const html = `
+    }).done((res) => {
+        const html = `
       <tr>
         <td>${res.data.task_id}</td>
         <td>${res.data.task_status}</td>
         <td>${res.data.task_elapsed}</td>
       </tr>`
-            $('#sessions').empty().append(html);
-            const taskStatus = res.data.task_status;
-            if (taskStatus === 'finished') {
-                if (res.code) {
-                    codeResponse = res.code;
-                    var button = document.createElement('button');
-                    button.className = 'btn btn-primary';
-                    button.innerHTML = 'Download C Header';
-                    button.onclick = function () {
-                        SaveAsFile(codeResponse, "sched.h", "text/plain;charset=utf-8");
-                    };
-                    $('#downloadBtn').append(button);
-                }
-                const rawResponse = res.img;
-                const plt_src = $('#plt_src');
-                plt_src.append(rawResponse);
-                plt_src.children('svg').addClass('responsive-img').attr('width', "100%")
-                document.getElementById('plt_src').scrollIntoView();
-                return false;
+        $('#sessions').empty().append(html);
+        const taskStatus = res.data.task_status;
+        if (taskStatus === 'finished') {
+            if (res.code) {
+                codeResponse = res.code;
+                var button = document.createElement('button');
+                button.className = 'btn btn-primary';
+                button.innerHTML = 'Download C Header';
+                button.onclick = function () {
+                    SaveAsFile(codeResponse, "sched.h", "text/plain;charset=utf-8");
+                };
+                $('#downloadBtn').append(button);
             }
-            if (taskStatus === 'failed') return false;
-            setTimeout(function () {
-                getStatus(res.data.task_id);
-            }, 1000);
-        })
-        .fail((err) => {
-            console.log(err);
-        });
+            const rawResponse = res.img;
+            const plt_src = $('#plt_src');
+            plt_src.append(rawResponse);
+            plt_src.children('svg').addClass('responsive-img').attr('width', "100%")
+            document.getElementById('plt_src').scrollIntoView();
+
+            const element = document.getElementById('chart');
+            const timeline = new TimelineChart(element, data, {
+                tip: function (d) {
+                    return d.at || `${d.from}<br>${d.to}`;
+                }
+            }).onVizChange(e => console.log(e));
+
+            return false;
+        }
+        if (taskStatus === 'failed') return false;
+        setTimeout(function () {
+            getStatus(res.data.task_id);
+        }, 1000);
+    }).fail((err) => {
+        console.log(err);
+    });
 }
 
 
@@ -261,7 +267,7 @@ function calc_hyperperiod() {
         }
     });
     if (periods.length > 0) {
-        hyperperiod = lcm(periods);
+        hyperperiod = calc_lcm(periods);
         console.log("hyperperiod=" + hyperperiod);
         $('#hyperVal').text(hyperperiod);
     }
