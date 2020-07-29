@@ -1,4 +1,5 @@
 # from project.server.scheduling. import get_SMT_sched
+import simplejson as json
 import sys
 
 sys.path.insert(0, '../SimpleSMTScheduler')
@@ -6,37 +7,40 @@ from simplesmtscheduler.schedulers import *
 
 from io import StringIO
 
-
-def create_task(file, optimize=False, simAnnealing=False):
+def create_task(file, wcet_offset, optimize=False, simAnnealing=False):
     tasksFileName = file
     taskSet = []
-    wcet_offset = 0
     verbose = False
     schedulePlotPeriods = 1
 
     parse_csv_taskset(tasksFileName, taskSet)
-    schedule, utilization, hyperPeriod, elapsedTime = gen_cyclic_schedule_model(taskSet, wcet_offset, optimize, verbose)
+
+    if simAnnealing is False:
+        schedule, utilization, hyperPeriod, elapsedTime = gen_cyclic_schedule_model(taskSet, wcet_offset, optimize, verbose)
+
     if schedule is not None:
         gen_schedule_activations(schedule, taskSet)
+
     schedulePlot = plot_cyclic_schedule(taskSet, hyperPeriod, schedulePlotPeriods)
     c_code = gen_schedule_code("", tasksFileName, taskSet, hyperPeriod, utilization, False)
-    # Save it to a temporary buffer.
-    # imgBuf = BytesIO()
-    # schedulePlot.savefig(imgBuf, format="png")
     imgBuf = StringIO()
     schedulePlot.savefig(imgBuf, format="svg")
-    # Embed the result in the html output.
-    # imgData = base64.b64encode(imgBuf.getbuffer()).decode("ascii")
     imgData = imgBuf.getvalue()
 
     c_code.seek(0)
     codeString = c_code.read()
 
     retVal = dict()
-    # retVal[
-    #     'img'] = f"<img class='center-block responsive-img' alt='generated schedule plot' src='data:image/png;base64,{imgData}'/>"
     retVal['img'] = f"{imgData}"
     retVal['code'] = codeString
-    retVal['util'] = utilization
+    tasksDict = dict()
+    for t in taskSet:
+        d = dict()
+        for k, v in t.__dict__.items():
+            if not k.startswith('release'):
+                d[k] = v
+        tasksDict[t.name] = d
+    retVal['activations'] = json.dumps(tasksDict, iterable_as_array=True)
     retVal['elapsed'] = (elapsedTime * SEC_TO_MS)
+
     return retVal

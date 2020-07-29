@@ -24,10 +24,14 @@ def info():
 @main_blueprint.route("/tasks", methods=["POST"])
 def run_task():
     tasks_data = request.form.get('tasks_data')
+    wcet_gap = int(request.form.get('wcet_gap'))
     optimize = request.form.get('optimize')
     print(tasks_data)
     file = io.StringIO(tasks_data)
     csv.writer(file)
+
+    print(f"Starting scheduling with: \ntasks={tasks_data}, \nwcet_gap={wcet_gap}, \noptimize={str(optimize)})",
+          flush=True)
 
     if file is None:
         flash('No file part')
@@ -39,7 +43,7 @@ def run_task():
 
     with Connection(redis.from_url(current_app.config["REDIS_URL"])):
         q = Queue()
-        task = q.enqueue(create_task, file, optimize)
+        task = q.enqueue(create_task, file, wcet_gap, optimize)
 
     response_object = {
         "status": "success",
@@ -59,16 +63,18 @@ def get_status(task_id):
     if task:
         result = task.return_value
         if result is None:
+            print("Scheduling returned and failed", flush=True)
             response_object = {
                 "status": "success",
                 "data": {
                     "task_id": task.get_id(),
                     "task_status": task.get_status(),
                 },
-                "img": task.return_value,
-                "code": task.return_value
+                "img": result,
+                "code": result
             }
         else:
+            print(f"Scheduling completed successfully with scheduled tasks:\n {result.get('activations')}", flush=True)
             response_object = {
                 "status": "success",
                 "data": {
@@ -78,7 +84,7 @@ def get_status(task_id):
                 },
                 "img": result.get("img"),
                 "code": result.get("code"),
-                "util": result.get("util")
+                "activations": result.get("activations")
             }
     else:
         # TODO: I think we should rework this and actually handle errors gracefully
