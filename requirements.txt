@@ -9,6 +9,7 @@ numpy==1.16.2
 matplotlib==3.0.3
 z3==0.2.0
 z3-solver==4.8.6.0
+simplejson==3.17.2
 Werkzeug~=1.0.1
 click~=7.1.2
 
