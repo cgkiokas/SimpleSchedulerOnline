@@ -6,7 +6,9 @@ jQuery.fn.shift = [].shift;
 let codeResponse = "";
 let utilization = 0;
 let hyperperiod = 0;
-let editable = document.querySelectorAll('[contenteditable=true]')
+let editable = document.querySelectorAll('[contenteditable=true]');
+let dataTable;
+let chart;
 
 function calc_lcm(periods) {
     let lcm_val = Math.round(periods[0]);
@@ -27,6 +29,19 @@ const newTaskTemplate = "<tr class='hide'><td contenteditable='true' inputmode=d
     "<td contenteditable='true'>&task_n</td>" +
     "<td class='text-center'><span class='table-remove'><button type='button' class='btn btn-danger btn-rounded btn-sm my-0 btn-responsive'><i aria-hidden='true' class='fa fa-trash-o'/></button></span></td>"
 
+const options = {
+    timeline: {
+        groupByRowLabel: true,
+        colorByRowLabel: false,
+        showRowLabels: true,
+        showBarLabels: true,
+    },
+    avoidOverlappingGridLines: false,
+    tooltip: {
+        isHtml: true
+    }
+};
+
 $(document).ready(() => {
     console.log('Sanity Check!');
     if ($(window).width() < 770) {
@@ -40,7 +55,25 @@ $(document).ready(() => {
         // desktop
         $("#top-buttons").addClass("btn-group float-right");
     }
+    google.charts.load("current", {packages: ["timeline", "gantt"]});
 });
+
+//create trigger to resizeEnd event
+$(window).resize(function () {
+    if (this.resizeTO) clearTimeout(this.resizeTO);
+    this.resizeTO = setTimeout(function () {
+        $(this).trigger('resizeEnd');
+    }, 500);
+});
+
+//redraw graph when window resize is completed
+$(window).on('resizeEnd', function () {
+    const container = document.getElementById("schedule_chart");
+    chart = new google.visualization.Timeline(container);
+    if (dataTable)
+        chart.draw(dataTable, options);
+});
+
 
 function init_util() {
     updateEditablesList();
@@ -60,7 +93,7 @@ function updateEditablesList() {
 
 function SaveAsFile(t, f, m) {
     try {
-        var b = new Blob([t], {type: m});
+        let b = new Blob([t], {type: m});
         saveAs(b, f);
         window.close();
     } catch (e) {
@@ -74,7 +107,7 @@ function GetTableAsString() {
     // Turn all existing rows into a loopable array$("#tasks_data").val(GetTableAsString());
     $rows.each(function () {
         const $th = $(this).find('th:not(:empty)');
-        for (i = 0; i < $th.length - 1; i++) {
+        for (let i = 0; i < $th.length - 1; i++) {
             csvContent += $th[i].innerText;
             if (i < $th.length - 2) {
                 csvContent += ",";
@@ -82,7 +115,7 @@ function GetTableAsString() {
         }
         ;
         const $td = $(this).find('td');
-        for (i = 0; i < $td.length - 1; i++) {
+        for (let i = 0; i < $td.length - 1; i++) {
             csvContent += $td[i].innerText.trim();
             if (i < $td.length - 2) {
                 csvContent += ",";
@@ -119,28 +152,172 @@ function getStatus(taskID) {
                 };
                 $('#downloadBtn').append(button);
             }
-            const rawResponse = res.img;
-            const plt_src = $('#plt_src');
-            plt_src.append(rawResponse);
-            plt_src.children('svg').addClass('responsive-img').attr('width', "100%")
-            document.getElementById('plt_src').scrollIntoView();
+            // const rawResponse = res.img;
+            // const plt_src = $('#plt_src');
+            // plt_src.append(rawResponse);
+            // plt_src.children('svg').addClass('responsive-img').attr('width', "100%")
+            // plt_src.scrollIntoView();
 
-            const element = document.getElementById('chart');
-            const timeline = new TimelineChart(element, data, {
-                tip: function (d) {
-                    return d.at || `${d.from}<br>${d.to}`;
-                }
-            }).onVizChange(e => console.log(e));
+            if (res.activations) {
+                const container = document.getElementById("schedule_chart");
+                let activations = JSON.parse(res.activations);
+                // drawGoogleTimeline(container, activations);
+                drawVisTimeline(container, activations);
+                container.scrollIntoView();
+            }
 
             return false;
         }
         if (taskStatus === 'failed') return false;
         setTimeout(function () {
             getStatus(res.data.task_id);
-        }, 1000);
+        }, 5000);
     }).fail((err) => {
         console.log(err);
     });
+}
+
+function drawGoogleTimeline(container, activations) {
+    dataTable = new google.visualization.DataTable();
+    dataTable.addColumn({type: 'string', id: 'CPU ID'});
+    dataTable.addColumn({type: 'string', id: 'Name'});
+    dataTable.addColumn({type: 'string', role: 'tooltip'});
+    dataTable.addColumn({type: 'number', id: 'Start'});
+    dataTable.addColumn({type: 'number', id: 'End'});
+    console.log(activations);
+    let task_acts = [];
+    $.each(activations, function (key, value) {
+        let t = value;
+        for (let i = 0; i < t.activation_instances.length; i++) {
+            let start = parseFloat(t.activation_instances[i]);
+            let end = start + parseFloat(t.execution);
+            let reldeadline = parseFloat(t.deadline) + i * parseFloat(t.period);
+            let ttooltip = "<div><strong>Task:</strong>" + t.name + "</div>" +
+                "<div>" +
+                "<div><strong>Period:</strong>" + t.period.toString() + "</div>" +
+                "<div><strong>Starts @ </strong>" + start.toString() + "</div>" +
+                "<div><strong>Ends @ </strong>" + end.toString() + "</div>" +
+                "<div><strong>Deadline @ </strong>" + reldeadline.toString() + "</div>" +
+                "</div>";
+            task_acts.push([
+                "CPU #" + t.coreid.toString(),
+                t.name,
+                ttooltip,
+                start,
+                end
+            ]);
+        }
+    });
+    chart = new google.visualization.Timeline(container);
+    dataTable.addRows(task_acts);
+    chart.draw(dataTable, options);
+}
+
+function drawVisTimeline(container, activations) {
+    // Configuration for the Timeline
+    const timeline_options = {
+        start: new Date(0),
+        end: new Date(hyperperiod),
+        min: new Date(0),
+        max: new Date(hyperperiod),
+        stack: false,
+        stackSubgroups: true,
+        horizontalScroll: false,
+        verticalScroll: false,
+        zoomKey: "ctrlKey",
+        editable: true,
+        format: {
+            minorLabels: function (date, scale, step) {
+                switch (scale) {
+                    case 'millisecond':
+                        return new Date(date).getTime();
+                    case 'second':
+                        return new Date(date).getTime();
+                    case 'minute':
+                        return new Date(date).getTime();
+                }
+            },
+            majorLabels: function (date, scale, step) {
+                switch (scale) {
+                    case 'millisecond':
+                        return new Date(date).getTime();
+                    case 'second':
+                        return new Date(date).getTime();
+                    case 'minute':
+                        return new Date(date).getTime();
+                }
+            }
+        }
+    };
+    let timeline = new vis.Timeline(container, null, timeline_options);
+
+    // Create a DataSet (allows two way data-binding)
+    let groups = new vis.DataSet();
+    let items = new vis.DataSet();
+    let arrows_array = [];
+
+    let count = 0;
+    let taskindex = 0;
+    $.each(activations, function (key, value) {
+        let t = value;
+        for (let i = 0; i < t.activation_instances.length; i++) {
+            let t_start = parseFloat(t.activation_instances[i]);
+            let t_end = t_start + parseFloat(t.execution);
+            let t_dead = t.deadline + i * t.period;
+            items.add({
+                id: count,
+                group: t.coreid,
+                subgroup: taskindex,
+                title: "<div class='alert-success'>" +
+                    "<div><strong>" + t.name + "</strong></div>" +
+                    "<div><strong>WCET = </strong>" + t.execution + "</div>" +
+                    "</div>",
+                start: t_start,
+                end: t_end,
+                type: 'range',
+                className: 'green'
+            });
+            let to = count;
+            count++;
+            let from = count;
+            items.add({
+                id: count,
+                group: t.coreid,
+                subgroup: taskindex,
+                start: t_end,
+                end: t_end + parseFloat($("#wcet_gap").val()),
+                type: 'background'
+            });
+            count++;
+            items.add({
+                id: count,
+                group: t.coreid,
+                subgroup: taskindex,
+                start: t_dead - Math.max(1, t.jitter / 2),
+                end: t_dead + Math.max(1, t.jitter / 2),
+                type: 'background',
+                className: 'warning'
+            });
+            count++;
+            arrows_array.push({id: arrows_array.length + 1, id_item_1: from, id_item_2: to});
+        }
+        let found_group = false;
+        $.each(groups['_data'], function (key, value) {
+            if (value.id === t.coreid) found_group = true;
+        });
+        if (!found_group) {
+            groups.add({
+                id: t.coreid,
+                content: "CPU #" + t.coreid
+            });
+        }
+        taskindex++;
+    });
+
+    // Create a Timeline
+    timeline.setGroups(groups);
+    timeline.setItems(items);
+    // const my_Arrow = new Arrow(timeline, arrows_array);
 }
 
 
@@ -158,7 +335,7 @@ $('#schedule').on('click', function () {
     //Remove old plots and code
     $('#downloadBtn').empty();
     $('#plt_src').empty();
-
+    $('#schedule_chart').empty();
     $.ajax({
         url: '/tasks',
         data: formData,
@@ -173,7 +350,7 @@ $('#schedule').on('click', function () {
 });
 
 $("#fileval").change(function (e) {
-    var ext = $("input#fileval").val().split(".").pop().toLowerCase();
+    let ext = $("input#fileval").val().split(".").pop().toLowerCase();
     if ($.inArray(ext, ["csv"]) == -1) {
         alert('Upload CSV');
         return false;
@@ -183,12 +360,12 @@ $("#fileval").change(function (e) {
         var reader = new FileReader();
         reader.onload = function (e) {
             $('#tasks').empty();
-            var data = e.target.result
+            const data = e.target.result
             $("#tasks_data").val(data);
             // start the body
-            var html = "";
+            let html = "";
             // split into lines
-            var rows = data.split("\n");
+            let rows = data.split("\n");
             // parse lines
             for (i = 1; i < rows.length; ++i) {
                 // start a table row
@@ -236,7 +413,7 @@ $("#exportCsv").on('click', function () {
 });
 
 function calc_util() {
-    var sum = 0;
+    let sum = 0;
     const $rows = $('#tasks').find('tr:not(:hidden)');
     $rows.each(function () {
         const $td = $(this).find('td');
@@ -259,7 +436,7 @@ function calc_util() {
 
 function calc_hyperperiod() {
     const $rows = $('#tasks').find('tr:not(:hidden)');
-    var periods = [];
+    let periods = [];
     $rows.each(function () {
         const $td = $(this).find('td');
         if ((typeof ($td[0]) !== "undefined") && $td.length > 0) {
@@ -272,4 +449,3 @@ function calc_hyperperiod() {
         $('#hyperVal').text(hyperperiod);
     }
 }
-
