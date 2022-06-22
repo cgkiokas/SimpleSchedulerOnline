@@ -5,7 +5,7 @@ Flask-WTF==0.14.2
 redis==3.3.11
 rq==1.1.0
 
-numpy==1.16.2
+numpy==1.22.0
 matplotlib==3.0.3
 z3==0.2.0
 z3-solver==4.8.6.0
